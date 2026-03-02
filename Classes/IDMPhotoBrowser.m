@@ -573,11 +573,25 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     return CGRectMake(0,0, buttonWidth, buttonHeight);
 }
 
-- (UIImage*)getImageFromView:(UIView *)view {
-    UIGraphicsBeginImageContextWithOptions(view.bounds.size, YES, 2);
-    [view.layer renderInContext:UIGraphicsGetCurrentContext()];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
+- (UIImage *)getImageFromView:(UIView *)view {
+
+    if (!view) return nil;
+
+    CGSize size = view.bounds.size;
+
+    if (size.width <= 0 || size.height <= 0) {
+        return nil;
+    }
+
+    [view layoutIfNeeded];
+
+    UIGraphicsImageRenderer *renderer =
+        [[UIGraphicsImageRenderer alloc] initWithSize:size];
+
+    UIImage *image = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+        [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:YES];
+    }];
+
     return image;
 }
 
